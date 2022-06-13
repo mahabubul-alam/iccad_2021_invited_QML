@@ -28,8 +28,7 @@ class MyCSVDatasetReader(Dataset):
 
         X = torch.FloatTensor(self.X[idx, :])
         Y = self.Y[idx]
-        sample = {'feature': X, 'label': Y}
-        return sample
+        return {'feature': X, 'label': Y}
 
     def _get_labels(self):
         return self.Y

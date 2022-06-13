@@ -18,14 +18,14 @@ dev = qml.device("default.qubit", wires = n_qubits)
 
 def circuit(inputs, weights):
     var_per_qubit = int(len(inputs)/n_qubits) + 1
-    encoding_gates = ['RZ', 'RX'] * ceil(var_per_qubit/2) 
+    encoding_gates = ['RZ', 'RX'] * ceil(var_per_qubit/2)
     for qub in range(n_qubits):
         qml.Hadamard(wires = qub)
         for i in range(var_per_qubit):
             if (qub * var_per_qubit + i) < len(inputs):
-                exec('qml.{}({}, wires = {})'.format(encoding_gates[i], inputs[qub * var_per_qubit + i], qub))
-            else: #load nothing
-                pass
+                exec(
+                    f'qml.{encoding_gates[i]}({inputs[qub * var_per_qubit + i]}, wires = {qub})'
+                )
 
     for l in range(n_layers):
         for i in range(n_qubits):
@@ -34,8 +34,7 @@ def circuit(inputs, weights):
         for j in range(n_qubits, 2*n_qubits):
             qml.RY(weights[l, j], wires = j % n_qubits)
 
-    _expectations = [qml.expval(qml.PauliZ(i)) for i in range(n_qubits)]
-    return _expectations
+    return [qml.expval(qml.PauliZ(i)) for i in range(n_qubits)]
     #return qml.expval(qml.PauliZ(0))
 
 class Quanv2d(nn.Module):
@@ -51,8 +50,16 @@ class Quanv2d(nn.Module):
         assert len(X.shape) == 4 #(bs, c, w, h)
         XL = []
         for i in range(0, X.shape[2], stride):
-            for j in range(0, X.shape[3], stride):
-                XL.append(self.ql1(torch.flatten(X[:, :, i:i+kernel_size, j:j+kernel_size], start_dim = 1)))
+            XL.extend(
+                self.ql1(
+                    torch.flatten(
+                        X[:, :, i : i + kernel_size, j : j + kernel_size],
+                        start_dim=1,
+                    )
+                )
+                for j in range(0, X.shape[3], stride)
+            )
+
         X = torch.cat(XL, dim = 1)
         return X
 

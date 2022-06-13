@@ -27,9 +27,9 @@ def circuit(inputs, weights):
         qml.Hadamard(wires = qub)
         for i in range(var_per_qubit):
             if (qub * var_per_qubit + i) < len(inputs):
-                exec('qml.{}({}, wires = {})'.format(encoding_gates[i], inputs[qub * var_per_qubit + i], qub))
-            else: #load nothing
-                pass
+                exec(
+                    f'qml.{encoding_gates[i]}({inputs[qub * var_per_qubit + i]}, wires = {qub})'
+                )
 
     for l in range(n_layers):
         for i in range(n_qubits):
@@ -38,21 +38,20 @@ def circuit(inputs, weights):
         for j in range(n_qubits, 2 * n_qubits):
             qml.RY(weights[l, j], wires = j % n_qubits)
 
-    _expectations = [qml.expval(qml.PauliZ(i)) for i in range(n_qubits)]
-    return _expectations
+    return [qml.expval(qml.PauliZ(i)) for i in range(n_qubits)]
     #return qml.expval(qml.PauliZ(0))
 
 def qnn_circuit(inputs, weights):
-    encoding_gates = ['RZ', 'RX'] * int(len(inputs)/2)
+    encoding_gates = ['RZ', 'RX'] * (len(inputs) // 2)
     var_per_qubit = int(len(inputs)/qnn_qubits) + 1
     for qub in range(qnn_qubits):
         qml.Hadamard(wires = qub)
         for i in range(var_per_qubit):
             if (qub * var_per_qubit + i) < len(inputs):
-                exec('qml.{}({}, wires = {})'.format(encoding_gates[i], np.pi * inputs[qub * var_per_qubit + i], qub))
-            else: #load nothing
-                pass
-    
+                exec(
+                    f'qml.{encoding_gates[i]}({np.pi * inputs[qub * var_per_qubit + i]}, wires = {qub})'
+                )
+
     for l in range(qnn_layers):
         for i in range(qnn_qubits):
             qml.CRZ(weights[l, i], wires = [i, (i + 1) % qnn_qubits])
@@ -60,8 +59,7 @@ def qnn_circuit(inputs, weights):
         for j in range(qnn_qubits, 2 * qnn_qubits):
             qml.RY(weights[l, j], wires = j % qnn_qubits)
 
-    _expectations = [qml.expval(qml.PauliZ(i)) for i in range(qnn_qubits)]
-    return _expectations
+    return [qml.expval(qml.PauliZ(i)) for i in range(qnn_qubits)]
     #return qml.expval(qml.PauliZ(0))
 
 

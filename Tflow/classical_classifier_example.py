@@ -9,7 +9,7 @@ import os
 import numpy as np
 
 data = genfromtxt(sys.argv[1], delimiter=',')
-data = data[0:2000]
+data = data[:2000]
 X = data[:,:-1]
 X = normalize(X, axis = 0, norm = 'max')
 y = data[:,-1]
@@ -17,7 +17,7 @@ features = X.shape[-1]
 classes = max(y) + 1
 
 out_prefix = sys.argv[1].split('/')[-1].split('.')[0]
-outdir = 'AE_Classical_results/' + out_prefix
+outdir = f'AE_Classical_results/{out_prefix}'
 os.makedirs(outdir, exist_ok = True)
 
 c1layer = tf.keras.layers.Dense(features)
@@ -34,7 +34,18 @@ tr_loss_history = history_callback.history['loss']
 tr_acc_history = history_callback.history['accuracy']
 val_loss_history = history_callback.history['val_loss']
 val_acc_history = history_callback.history['val_accuracy']
-np.savetxt(outdir + '/tr_loss_history.csv', np.array(tr_loss_history), delimiter = ",")
-np.savetxt(outdir + '/tr_acc_history.csv', np.array(tr_acc_history), delimiter = ",")
-np.savetxt(outdir + '/val_loss_history.csv', np.array(val_loss_history), delimiter = ",")
-np.savetxt(outdir + '/val_acc_history.csv', np.array(val_acc_history), delimiter = ",")
+np.savetxt(
+    f'{outdir}/tr_loss_history.csv', np.array(tr_loss_history), delimiter=","
+)
+
+np.savetxt(
+    f'{outdir}/tr_acc_history.csv', np.array(tr_acc_history), delimiter=","
+)
+
+np.savetxt(
+    f'{outdir}/val_loss_history.csv', np.array(val_loss_history), delimiter=","
+)
+
+np.savetxt(
+    f'{outdir}/val_acc_history.csv', np.array(val_acc_history), delimiter=","
+)

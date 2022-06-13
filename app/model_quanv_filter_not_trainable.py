@@ -22,9 +22,9 @@ def circuit(inputs, weights):
         qml.Hadamard(wires = qub)
         for i in range(var_per_qubit):
             if (qub * var_per_qubit + i) < len(inputs):
-                exec('qml.{}({}, wires = {})'.format(encoding_gates[i], inputs[qub * var_per_qubit + i], qub))
-            else: #load nothing
-                pass
+                exec(
+                    f'qml.{encoding_gates[i]}({inputs[qub * var_per_qubit + i]}, wires = {qub})'
+                )
 
     for l in range(n_layers):
         for i in range(n_qubits):
@@ -33,8 +33,7 @@ def circuit(inputs, weights):
         for j in range(n_qubits, 2*n_qubits):
             qml.RY(weights[l, j], wires = j % n_qubits)
 
-    _expectations = [qml.expval(qml.PauliZ(i)) for i in range(n_qubits)]
-    return _expectations
+    return [qml.expval(qml.PauliZ(i)) for i in range(n_qubits)]
     #return qml.expval(qml.PauliZ(0))
 
 
@@ -59,10 +58,16 @@ class Net(nn.Module):
         bs = X.shape[0]
         X = X.view(bs, image_x_y_dim, image_x_y_dim)
         XL = []
-        
+
         for i in range(0, image_x_y_dim, stride):
-            for j in range(0, image_x_y_dim, stride):
-                XL.append(self.ql1(torch.flatten(X[:, i:i+kernel_size, j:j+kernel_size], start_dim = 1)))
+            XL.extend(
+                self.ql1(
+                    torch.flatten(
+                        X[:, i : i + kernel_size, j : j + kernel_size], start_dim=1
+                    )
+                )
+                for j in range(0, image_x_y_dim, stride)
+            )
 
         X = torch.cat(XL, dim = 1)
         X = self.fc1(X)

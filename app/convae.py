@@ -244,5 +244,5 @@ for sample in tqdm(test_dataset):
     encoded_sample.append(label)
     encoded_samples.append(encoded_sample)
 
-np.savetxt('latent_mnist_test_d{}.csv'.format(d), encoded_samples, delimiter = ',')
+np.savetxt(f'latent_mnist_test_d{d}.csv', encoded_samples, delimiter = ',')
 print('finished!')

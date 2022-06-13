@@ -53,7 +53,7 @@ epochs = 10, bs = 20, optimizer = None, criterion = None, outdir = None, file_pr
             y_trues += y.cpu().numpy().tolist()
             y_preds += output.data.cpu().numpy().argmax(axis=1).tolist()
 
-            print('Time per batch ({}): {}'.format(i,time.time()-t2))
+            print(f'Time per batch ({i}): {time.time() - t2}')
 
         tr_acc = accuracy_score(y_trues, y_preds)
         tr_accs.append(tr_acc)
@@ -63,7 +63,7 @@ epochs = 10, bs = 20, optimizer = None, criterion = None, outdir = None, file_pr
         cnf = confusion_matrix(y_trues, y_preds)
         print(cnf)
 
-        print('Epoch: {} TR_Loss: {}, TR_Acc: {}'.format(epoch, tr_loss, tr_acc))
+        print(f'Epoch: {epoch} TR_Loss: {tr_loss}, TR_Acc: {tr_acc}')
 
         net.eval()
         val_loss = 0
@@ -94,17 +94,17 @@ epochs = 10, bs = 20, optimizer = None, criterion = None, outdir = None, file_pr
         val_accs.append(val_acc)
         val_loss = val_loss/(i+1)
         val_losses.append(val_loss)
-        
+
         cnf = confusion_matrix(y_trues, y_preds)
         print(cnf)
 
-        print('Epoch: {} VAL_Loss: {}, VAL_Acc: {}'.format(epoch, val_loss, val_acc))
-        print('Time for Epoch ({}): {}'.format(epoch, time.time()-t1))
-    
+        print(f'Epoch: {epoch} VAL_Loss: {val_loss}, VAL_Acc: {val_acc}')
+        print(f'Time for Epoch ({epoch}): {time.time() - t1}')
+
     #save model and results
     os.makedirs(outdir, exist_ok = True)
-    torch.save(net.state_dict(), outdir + '/' + file_prefix + '_model')
-    np.save(outdir + '/' + file_prefix + '_training_loss.npy', tr_losses)
-    np.save(outdir + '/' + file_prefix + '_validation_loss.npy', val_losses)
-    np.save(outdir + '/' + file_prefix + '_training_accuracy.npy', tr_accs)
-    np.save(outdir + '/' + file_prefix + '_validation_accuracy.npy', val_accs)
+    torch.save(net.state_dict(), f'{outdir}/{file_prefix}_model')
+    np.save(f'{outdir}/{file_prefix}_training_loss.npy', tr_losses)
+    np.save(f'{outdir}/{file_prefix}_validation_loss.npy', val_losses)
+    np.save(f'{outdir}/{file_prefix}_training_accuracy.npy', tr_accs)
+    np.save(f'{outdir}/{file_prefix}_validation_accuracy.npy', val_accs)
